@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Comfee Cafe Inventory System</title>
+
+<style>
+:root {
+    --bg: #f6f1e7;
+    --card: #ffffff;
+    --text: #2c2c2c;
+}
+
+body.dark {
+    --bg: radial-gradient(circle at top, #0a0f1f, #000);
+    --card: #1b1f2a;
+    --text: #f1f1f1;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: 0.5s;
+    overflow-x: hidden;
+}
+
+.toggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 70px;
+    height: 35px;
+    background: #ddd;
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    z-index: 10;
+}
+
+.circle {
+    width: 25px;
+    height: 25px;
+    background: yellow;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+body.dark .circle {
+    transform: translateX(35px);
+    background: #ccc;
+}
+
+.bean {
+    position: fixed;
+    width: 10px;
+    height: 16px;
+    background: #4b2e1e;
+    border-radius: 50%;
+    opacity: 0.18;
+    animation: float 18s linear infinite;
+}
+
+.bean::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 70%;
+    background: #2b1a12;
+    left: 50%;
+    top: 15%;
+    transform: translateX(-50%);
+}
+
+@keyframes float {
+    0% { transform: translateY(100vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(360deg); }
+}
+
+.container {
+    max-width: 1100px;
+    margin: 80px auto;
+    background: var(--card);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.categories {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.cat-btn {
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: #6b3e26;
+    color: white;
+    cursor: pointer;
+}
+
+.highlight {
+    background: #ffcc70;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: 0.4s;
+}
+
+.highlight.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+.low {
+    color: red;
+    font-weight: bold;
+}
+
+button {
+    padding: 6px 10px;
+    border: none;
+    background: #6b3e26;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="toggle" onclick="toggleDark()">
+    <div class="circle"></div>
+</div>
+
+<script>
+for (let i = 0; i < 35; i++) {
+    let bean = document.createElement("div");
+    bean.className = "bean";
+    bean.style.left = Math.random() * 100 + "vw";
+    bean.style.animationDuration = (10 + Math.random() * 15) + "s";
+    bean.style.width = (8 + Math.random() * 6) + "px";
+    bean.style.height = (12 + Math.random() * 8) + "px";
+    document.body.appendChild(bean);
+}
+</script>
+
+<div class="container">
+
+<h1>☕ Comfee Cafe Inventory System</h1>
+
+<div id="highlight" class="highlight"></div>
+
+<div class="categories">
+    <div class="cat-btn" onclick="filterCat('All')">All</div>
+    <div class="cat-btn" onclick="filterCat('Ingredients')">Ingredients</div>
+    <div class="cat-btn" onclick="filterCat('Cups & Packaging')">Cups & Packaging</div>
+    <div class="cat-btn" onclick="filterCat('Equipment')">Equipment</div>
+    <div class="cat-btn" onclick="filterCat('Cleaning Supplies')">Cleaning</div>
+    <div class="cat-btn" onclick="filterCat('Others')">Others</div>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Item</th>
+<th>Stock</th>
+<th>Update</th>
+<th>Delete</th>
+</tr>
+</thead>
+<tbody id="inventoryTable"></tbody>
+</table>
+
+</div>
+
+<script>
+let currentFilter = "All";
+
+let inventory = [
+{cat:"Ingredients", name:"Espresso Beans", qty:20},
+{cat:"Ingredients", name:"Ground Coffee", qty:15},
+{cat:"Ingredients", name:"Milk", qty:25},
+{cat:"Ingredients", name:"Oat Milk", qty:10},
+{cat:"Ingredients", name:"Soy Milk", qty:8},
+{cat:"Ingredients", name:"Almond Milk", qty:8},
+{cat:"Ingredients", name:"Sugar", qty:30},
+{cat:"Ingredients", name:"Brown Sugar", qty:20},
+{cat:"Ingredients", name:"Vanilla Syrup", qty:10},
+{cat:"Ingredients", name:"Caramel Syrup", qty:10},
+{cat:"Ingredients", name:"Hazelnut Syrup", qty:8},
+{cat:"Ingredients", name:"Chocolate Syrup", qty:10},
+{cat:"Ingredients", name:"Matcha Powder", qty:6},
+{cat:"Ingredients", name:"Cocoa Powder", qty:6},
+{cat:"Ingredients", name:"Whipped Cream", qty:5},
+{cat:"Ingredients", name:"Ice", qty:50},
+{cat:"Ingredients", name:"Tea Bags", qty:20},
+
+{cat:"Cups & Packaging", name:"Small Cups", qty:100},
+{cat:"Cups & Packaging", name:"Medium Cups", qty:100},
+{cat:"Cups & Packaging", name:"Large Cups", qty:100},
+{cat:"Cups & Packaging", name:"Cup Lids", qty:150},
+{cat:"Cups & Packaging", name:"Straws", qty:200},
+{cat:"Cups & Packaging", name:"Stirrers", qty:150},
+{cat:"Cups & Packaging", name:"Cup Sleeves", qty:100},
+{cat:"Cups & Packaging", name:"Takeout Bags", qty:80},
+{cat:"Cups & Packaging", name:"Napkins", qty:300},
+
+{cat:"Equipment", name:"Espresso Machine", qty:2},
+{cat:"Equipment", name:"Coffee Grinder", qty:2},
+{cat:"Equipment", name:"Blender", qty:2},
+{cat:"Equipment", name:"Refrigerator", qty:2},
+{cat:"Equipment", name:"Freezer", qty:1},
+{cat:"Equipment", name:"Milk Frother", qty:3},
+{cat:"Equipment", name:"Kettle", qty:2},
+{cat:"Equipment", name:"POS System", qty:1},
+
+{cat:"Cleaning Supplies", name:"Dish Soap", qty:10},
+{cat:"Cleaning Supplies", name:"Sanitizer", qty:10},
+{cat:"Cleaning Supplies", name:"Cleaning Cloth", qty:20},
+{cat:"Cleaning Supplies", name:"Mop", qty:5},
+{cat:"Cleaning Supplies", name:"Trash Bags", qty:50},
+{cat:"Cleaning Supplies", name:"Gloves", qty:100},
+
+{cat:"Others", name:"Receipt Paper", qty:20},
+{cat:"Others", name:"Markers", qty:10},
+{cat:"Others", name:"Menu Boards", qty:2}
+];
+
+function display() {
+    let table = document.getElementById("inventoryTable");
+    table.innerHTML = "";
+
+    inventory
+    .filter(i => currentFilter === "All" || i.cat === currentFilter)
+    .forEach((item, index) => {
+        table.innerHTML += `
+        <tr>
+            <td>${item.cat}</td>
+            <td>${item.name}</td>
+            <td class="${item.qty <= 5 ? 'low' : ''}">${item.qty}</td>
+            <td>
+                <button onclick="updateItem(${index},1)">+</button>
+                <button onclick="updateItem(${index},-1)">-</button>
+            </td>
+            <td>
+                <button onclick="if(confirm('Are you sure you want to delete this item?')) deleteItem(${index})">X</button>
+            </td>
+        </tr>`;
+    });
+}
+
+function filterCat(cat) {
+    currentFilter = cat;
+    display();
+
+    let h = document.getElementById("highlight");
+    h.innerText = cat + " Selected";
+    h.classList.add("show");
+
+    setTimeout(() => h.classList.remove("show"), 1200);
+}
+
+function updateItem(i, val) {
+    inventory[i].qty += val;
+    if (inventory[i].qty < 0) inventory[i].qty = 0;
+    display();
+}
+
+function deleteItem(i) {
+    inventory.splice(i, 1);
+    display();
+}
+
+function toggleDark() {
+    document.body.classList.toggle("dark");
+}
+
+display();
+</script>
+
+</body>
+</html>
+
