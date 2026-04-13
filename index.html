@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>COMFEE CAFE</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* BODY & HERO */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    overflow: hidden;
+    transition: 0.4s;
+    background: black;
+    color: white;
+}
+
+body.dark {
+    background: #1e1e1e;
+}
+
+/* HERO IMAGE */
+.hero {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1920') no-repeat center center/cover;
+    z-index: -2;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+
+/* HEADER */
+header {
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    border-bottom: 1px solid rgba(198, 156, 109, 0.3);
+}
+
+.logo {
+    font-family: 'Great Vibes', cursive;
+    font-size: 48px;
+}
+
+/* TOGGLE */
+.toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+}
+
+/* FLOATING BEANS */
+.beans {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.bean {
+    position: absolute;
+    width: 10px;
+    height: 16px;
+    background: #6b3e26;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 12s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(100vh); }
+    100% { transform: translateY(-10vh); }
+}
+
+/* LOGIN BOX */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.box {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    padding: 30px;
+    border-radius: 15px;
+    width: 320px;
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+}
+
+button.submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #c69c6d;
+    border: none;
+    cursor: pointer;
+}
+
+.switch {
+    margin-top: 12px;
+    cursor: pointer;
+    color: #ffebcd;
+}
+
+h2 {
+    font-size: 28px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero"></div>
+<div class="beans" id="beans"></div>
+
+<header>
+    <div class="logo">Comfee Cafe</div>
+</header>
+
+<button class="toggle" onclick="toggleMode()">🌙</button>
+
+<div class="container">
+<div class="box">
+    <h2 id="formTitle">Admin Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button class="submit-btn" onclick="handleAuth()">Submit</button>
+    <div class="switch" onclick="toggleForm()">Don't have an account? Sign up</div>
+</div>
+</div>
+
+<script>
+
+let isLogin = true;
+
+function toggleForm() {
+    isLogin = !isLogin;
+    document.getElementById("formTitle").innerText = isLogin ? "Login" : "Sign Up";
+    document.querySelector(".switch").innerText = isLogin
+        ? "Don't have an account? Sign up"
+        : "Already have an account? Login";
+}
+
+function handleAuth() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if(!username || !password){
+        alert("Please fill all fields");
+        return;
+    }
+
+    if(isLogin){
+        const stored = localStorage.getItem(username);
+
+        if(stored === password){
+            alert("Welcome to COMFEE CAFE, " + username + "!");
+            
+            // ✅ LINK TO INVENTORY PAGE
+            window.location.href = "inventory.html";
+
+        } else {
+            alert("Invalid login");
+        }
+
+    } else {
+        localStorage.setItem(username, password);
+        alert("Account created! You can now log in.");
+        toggleForm();
+    }
+}
+
+function toggleMode() {
+    document.body.classList.toggle("dark");
+}
+
+// FLOATING BEANS
+const beanContainer = document.getElementById("beans");
+for(let i = 0; i < 30; i++){
+    const bean = document.createElement("div");
+    bean.classList.add("bean");
+    bean.style.left = Math.random() * 100 + "vw";
+    bean.style.animationDuration = (5 + Math.random()*10) + "s";
+    bean.style.animationDelay = Math.random() * 5 + "s";
+    beanContainer.appendChild(bean);
+}
+
+</script>
+
+</body>
+</html>
+
